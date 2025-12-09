@@ -1,0 +1,60 @@
+# ---> Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ---> Logs
+logs
+*.log
+*.log.*
+log/
+npm-cache/
+
+# ---> Build output
+dist/
+build/
+.out/
+.tmp/
+
+# ---> Environment files (keep secrets out of GitHub)
+.env
+.env.*
+!.env.example
+
+# ---> Editor folders
+.vscode/
+.idea/
+*.swp
+
+# ---> OS files
+.DS_Store
+Thumbs.db
+
+# ---> Coverage
+coverage/
+*.lcov
+
+# ---> Cache
+.cache/
+.eslintcache
+.parcel-cache/
+vite.config.ts.timestamp*
+vite-plugin-svgr-cache/
+
+# ---> Testing
+jest-test-results.json
+jest-html-reporters-*
+
+# ---> Dependencies cache
+.pnp/
+.pnp.js
+
+# ---> TypeScript
+*.tsbuildinfo
+
+# ---> Misc
+*.local
+*.log
