@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, ReactNode } from "react";
-import { updateUserDetails, getProfile } from "@/lib/api";
+import { updateUserDetails, getProfile } from "@/lib/api.ts";
 import { useEffect } from "react";
 
 interface OnboardingData {

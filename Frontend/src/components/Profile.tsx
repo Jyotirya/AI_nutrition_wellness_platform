@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getProfile, updateProfile, logout } from "@/lib/api";
+import { getProfile, updateProfile, logout } from "@/lib/api.ts";
 import { Edit, Save, X, LogOut } from "lucide-react";
 
 export function Profile() {
