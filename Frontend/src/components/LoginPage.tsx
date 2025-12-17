@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Apple, Mail, Lock, Eye, EyeOff } from 'lucide-react';
-import { login, getUserDetails } from '@/lib/api.ts';
+import { login, getUserDetails } from '@/libapis/api';
 import { useOnboarding } from './onboarding/OnboardingContext';
 
 export function LoginPage() {
