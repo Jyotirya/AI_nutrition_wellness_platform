@@ -96,7 +96,8 @@ if database_url and database_url.strip():
     # 3. Only if valid, overwrite with Neon configuration
     DATABASES['default'] = dj_database_url.parse(
         database_url,
-        conn_max_age=600,
+        conn_max_age=0,     
+        conn_health_checks=True,
         ssl_require=True
     )
 
