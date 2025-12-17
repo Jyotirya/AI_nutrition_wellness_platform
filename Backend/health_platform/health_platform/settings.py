@@ -81,22 +81,24 @@ WSGI_APPLICATION = 'health_platform.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
+# 1. Start with SQLite (Safe default for building)
 DATABASES = {
-    'default': dj_database_url.config(
-        default=os.environ.get('DATABASE_URL'),
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
+
+# 2. Check if the variable exists AND is not empty
+database_url = os.environ.get("DATABASE_URL")
+
+if database_url and database_url.strip():
+    # 3. Only if valid, overwrite with Neon configuration
+    DATABASES['default'] = dj_database_url.parse(
+        database_url,
         conn_max_age=600,
         ssl_require=True
     )
-}
-
-if not os.environ.get("DATABASE_URL"):
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
-
 
 
 # Password validation
