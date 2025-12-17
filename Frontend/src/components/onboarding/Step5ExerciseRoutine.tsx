@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useOnboarding } from './OnboardingContext';
 import { OnboardingLayout } from './OnboardingLayout';
 import { ArrowRight, ArrowLeft, Dumbbell, Bike, PersonStanding, Waves, Mountain, Box } from 'lucide-react';
+import { useEffect } from 'react';
 
 const workoutTypes = [
   { value: 'Strength Training', label: 'Strength Training', icon: Dumbbell },
@@ -15,7 +16,7 @@ const workoutTypes = [
 
 export function Step5ExerciseRoutine() {
   const navigate = useNavigate();
-  const { data, updateData } = useOnboarding();
+  const { data, updateData, saveProgress } = useOnboarding();
   const [selectedTypes, setSelectedTypes] = useState<string[]>(data.workoutTypes);
   const [daysPerWeek, setDaysPerWeek] = useState(data.workoutDaysPerWeek);
 
@@ -27,9 +28,17 @@ export function Step5ExerciseRoutine() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    setSelectedTypes(data.workoutTypes);
+    setDaysPerWeek(data.workoutDaysPerWeek);
+    if (data.onboardingStep > 8 ) {
+      navigate("/dashboard");
+    }
+  },[data]);
+
+  const handleSubmit = async(e: React.FormEvent) => {
     e.preventDefault();
-    updateData({ workoutTypes: selectedTypes, workoutDaysPerWeek: daysPerWeek });
+    await saveProgress({ workoutTypes: selectedTypes, workoutDaysPerWeek: daysPerWeek , onboardingStep: 6 });
     navigate('/onboarding/step6');
   };
 

@@ -1,16 +1,23 @@
 import { useNavigate } from 'react-router-dom';
 import { useOnboarding } from './OnboardingContext';
 import { OnboardingLayout } from './OnboardingLayout';
+import { useEffect } from 'react';
 import { Check, User, Ruler, Weight, Activity, Dumbbell, Apple, Target, ArrowLeft } from 'lucide-react';
 
 export function StepSummary() {
   const navigate = useNavigate();
-  const { data } = useOnboarding();
+  const { data,saveProgress } = useOnboarding();
 
   const handleFinish = () => {
-    // In a real app, this would save the data and navigate to the dashboard
+    saveProgress({ onboardingStep: 9 });
     navigate('/dashboard');
   };
+
+  useEffect(() => {
+    if (data.onboardingStep > 8 ) {
+      navigate("/dashboard");
+    }
+  },[data]);
 
   const bmi = data.height && data.weight 
     ? (parseFloat(data.weight) / Math.pow(parseFloat(data.height) / 100, 2)).toFixed(1)

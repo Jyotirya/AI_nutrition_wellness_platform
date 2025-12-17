@@ -2,18 +2,27 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useOnboarding } from './OnboardingContext';
 import { OnboardingLayout } from './OnboardingLayout';
-import { ArrowRight, ArrowLeft } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Save } from 'lucide-react';
+import { useEffect } from 'react';
+
 
 export function Step4BodyFat() {
   const navigate = useNavigate();
-  const { data, updateData } = useOnboarding();
+  const { data, updateData, saveProgress } = useOnboarding();
   const [bodyFat, setBodyFat] = useState(data.bodyFat);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    updateData({ bodyFat });
+    await saveProgress({ bodyFat , onboardingStep: 5 });
     navigate('/onboarding/step5');
   };
+
+  useEffect(() => {
+    setBodyFat(data.bodyFat);
+    if (data.onboardingStep > 8 ) {
+      navigate("/dashboard");
+    }
+  },[data]);
 
   const handleSkip = () => {
     navigate('/onboarding/step5');

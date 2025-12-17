@@ -1,25 +1,66 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Apple, Mail, Lock, User, Eye, EyeOff } from 'lucide-react';
+import { register, login } from '@/lib/api';
 
 export function SignupPage() {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
     confirmPassword: '',
   });
+  
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
+    
     if (formData.password !== formData.confirmPassword) {
-      alert('Passwords do not match');
+      setError('Passwords do not match');
       return;
     }
-    // In a real app, this would create the user account
-    navigate('/onboarding/step1');
+
+    try {
+      setLoading(true);
+
+      await register({
+            email: formData.email,
+            password: formData.password,
+            password2: formData.confirmPassword,
+            first_name: formData.name,
+            last_name: "",
+          });
+          const { data: tokens } = await login({
+            email: formData.email,
+            password: formData.password,
+          });
+          localStorage.setItem("access", tokens.access);
+          localStorage.setItem("refresh", tokens.refresh);
+      
+      // Navigate to first onboarding step after successful registration
+      navigate('/onboarding/step1');
+      
+    } catch (err: any) {
+      // Handle errors from backend
+      if (err.response?.data?.email) {
+        setError(err.response.data.email[0]); // "A user with this email already exists."
+      } else if (err.response?.data?.password) {
+        setError(err.response.data.password[0]);
+      } else {
+        setError('Registration failed. Please try again.');
+      }
+
+      console.log('Error response:', err.response?.data);  // ← See what went wrong
+      console.log('Error status:', err.response?.status);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -49,6 +90,12 @@ export function SignupPage() {
               <h1 className="text-3xl mb-2">Create Your Account</h1>
               <p className="text-gray-600">Start your journey to better health today</p>
             </div>
+
+            {error && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
+                {error}
+              </div>
+            )}
 
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
@@ -104,6 +151,7 @@ export function SignupPage() {
                     className="w-full pl-11 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-lime-500 focus:border-transparent outline-none transition"
                     placeholder="Create a password"
                     required
+                    minLength={8}
                   />
                   <button
                     type="button"
@@ -151,9 +199,10 @@ export function SignupPage() {
 
               <button
                 type="submit"
-                className="w-full py-3 bg-lime-500 text-white rounded-lg hover:bg-lime-600 transition shadow-lg shadow-lime-500/30"
+                disabled={loading}
+                className="w-full py-3 bg-lime-500 text-white rounded-lg hover:bg-lime-600 transition shadow-lg shadow-lime-500/30 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Create Account
+                {loading ? 'Creating Account...' : 'Create Account'}
               </button>
             </form>
 

@@ -16,6 +16,9 @@ import { MealCard } from './dashboard/MealCard';
 import { ActivityCard } from './dashboard/ActivityCard';
 import { RecentActivityPanel } from './dashboard/RecentActivityPanel';
 import { DailyMenuPanel } from './dashboard/DailyMenuPanel';
+import { useNavigate } from 'react-router-dom';
+
+
 
 const recommendedMeals = [
   {
@@ -57,6 +60,8 @@ const recommendedMeals = [
 ];
 
 export function Dashboard() {
+
+  const navigate = useNavigate();
   return (
     <div className="min-h-screen bg-[#F8FAF9] flex">
       {/* Sidebar */}
@@ -85,8 +90,9 @@ export function Dashboard() {
                   <Bell className="w-6 h-6 text-gray-600" />
                   <span className="absolute top-1 right-1 w-2 h-2 bg-[#F9D867] rounded-full"></span>
                 </button>
-                <button className="w-10 h-10 bg-gradient-to-br from-[#85C872] to-[#6AB854] rounded-full flex items-center justify-center">
+                <button className="w-10 h-10 bg-gradient-to-br from-[#85C872] to-[#6AB854] rounded-full flex items-center justify-center" onClick={() => navigate("/profile")}>
                   <User className="w-5 h-5 text-white" />
+                  
                 </button>
               </div>
             </div>

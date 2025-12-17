@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useOnboarding } from './OnboardingContext';
 import { OnboardingLayout } from './OnboardingLayout';
 import { ArrowRight, ArrowLeft, Leaf, Fish, Beef, Milk, ShieldAlert } from 'lucide-react';
+import { useEffect } from 'react';
 
 const dietTypes = [
   { value: 'Omnivore', label: 'Omnivore', icon: Beef },
@@ -23,7 +24,7 @@ const commonAllergies = [
 
 export function Step6FoodPreferences() {
   const navigate = useNavigate();
-  const { data, updateData } = useOnboarding();
+  const { data, updateData, saveProgress } = useOnboarding();
   const [selectedDiet, setSelectedDiet] = useState<string[]>(data.dietType);
   const [selectedTastes, setSelectedTastes] = useState<string[]>(data.tastePreferences);
   const [selectedAllergies, setSelectedAllergies] = useState<string[]>(data.allergies);
@@ -35,6 +36,15 @@ export function Step6FoodPreferences() {
       setSelectedDiet([...selectedDiet, diet]);
     }
   };
+
+  useEffect(() => {
+    setSelectedDiet(data.dietType);
+    setSelectedTastes(data.tastePreferences);
+    setSelectedAllergies(data.allergies);
+    if (data.onboardingStep > 8 ) {
+      navigate("/dashboard");
+    }
+  },[data]);
 
   const toggleTaste = (taste: string) => {
     if (selectedTastes.includes(taste)) {
@@ -52,12 +62,13 @@ export function Step6FoodPreferences() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    updateData({
+    await saveProgress({
       dietType: selectedDiet,
       tastePreferences: selectedTastes,
       allergies: selectedAllergies,
+      onboardingStep: 7,
     });
     navigate('/onboarding/step7');
   };
