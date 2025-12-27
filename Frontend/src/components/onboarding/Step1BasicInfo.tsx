@@ -10,7 +10,7 @@ export function Step1BasicInfo() {
   const navigate = useNavigate();
   const { data,saveProgress } = useOnboarding();
   const [formData, setFormData] = useState({
-    age: data.age,
+    age: data.age ?? "",
     gender: data.gender,
     onboardingstep : 2,
   });
@@ -24,7 +24,7 @@ export function Step1BasicInfo() {
 
   useEffect(() => {
     setFormData({
-      age: data.age,
+      age: data.age ?? "",
       gender: data.gender,
       onboardingstep : 2,
     });

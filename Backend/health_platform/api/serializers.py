@@ -7,7 +7,7 @@ from rest_framework.validators import UniqueValidator
 User = get_user_model()
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
-    username_field = "email"   # 🔑 THIS IS CRITICAL
+    username_field = "email"  
 
     def validate(self, attrs):
         email = attrs.get("email")

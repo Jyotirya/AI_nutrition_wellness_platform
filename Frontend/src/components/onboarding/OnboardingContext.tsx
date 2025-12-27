@@ -12,7 +12,7 @@ interface OnboardingData {
   activityLevel: string;
   bodyFat: number;
   workoutTypes: string[];
-  workoutDaysPerWeek: number;
+  workoutDaysPerWeek: number;               
   dietType: string[];
   tastePreferences: string[];
   allergies: string[];
