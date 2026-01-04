@@ -260,5 +260,4 @@ class MealPlanService:
                 calories += food_cal
             if calories >= target_calories * 0.95:
                 break
-
         return meal

@@ -12,7 +12,6 @@ class UserDetails(models.Model):
     body_fat = models.FloatField(null = True)
     age = models.IntegerField(null=True)
     gender = models.CharField(max_length=255, null=True)
-    exercise = models.CharField(max_length=255, null=True) 
     food_preference = models.CharField(max_length=255, null=True)
     allergies = models.CharField(max_length=255, null=True)
     goal = models.CharField(max_length=255, null=True)
