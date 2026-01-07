@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { useOnboarding } from './OnboardingContext';
 import { OnboardingLayout } from './OnboardingLayout';
 import { ArrowRight, ArrowLeft, Armchair, Bike, Dumbbell, Zap } from 'lucide-react';
-import { useEffect } from 'react';
 
 const activityLevels = [
   {
@@ -38,20 +37,14 @@ const activityLevels = [
 
 export function Step3ActivityLevel() {
   const navigate = useNavigate();
-  const { data, updateData, saveProgress } = useOnboarding();
+  const { data, updateData } = useOnboarding();
   const [selected, setSelected] = useState(data.activityLevel);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    await saveProgress({ activityLevel: selected, onboardingStep: 4 });
+    updateData({ activityLevel: selected });
     navigate('/onboarding/step4');
   };
-  useEffect(() => {
-    setSelected(data.activityLevel);
-    if (data.onboardingStep > 8 ) {
-      navigate("/dashboard");
-    }
-  },[data]);
 
   return (
     <OnboardingLayout currentStep={3} totalSteps={7}>

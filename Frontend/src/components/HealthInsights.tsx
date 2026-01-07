@@ -90,17 +90,17 @@ export function HealthInsights() {
       <Sidebar activePage="Health Insights" />
 
       {/* Main Content */}
-      <main className="flex-1 ml-64">
+      <main className="flex-1 lg:ml-64">
         {/* Top Navigation Bar */}
         <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
-          <div className="px-8 py-6">
+          <div className="px-4 md:px-8 py-4 md:py-6">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-3xl mb-1">Health Insights</h1>
-                <p className="text-gray-600">AI-powered analytics and personalized recommendations</p>
+                <h1 className="text-2xl md:text-3xl mb-1">Health Insights</h1>
+                <p className="text-sm md:text-base text-gray-600">AI-powered analytics and personalized recommendations</p>
               </div>
-              <div className="flex items-center gap-4">
-                <div className="relative">
+              <div className="flex items-center gap-2 md:gap-4">
+                <div className="relative hidden md:block">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <input
                     type="text"
@@ -109,10 +109,10 @@ export function HealthInsights() {
                   />
                 </div>
                 <button className="relative p-2 hover:bg-gray-100 rounded-xl transition">
-                  <Bell className="w-6 h-6 text-gray-600" />
+                  <Bell className="w-5 h-5 md:w-6 md:h-6 text-gray-600" />
                 </button>
-                <button className="w-10 h-10 bg-gradient-to-br from-[#85C872] to-[#6AB854] rounded-full flex items-center justify-center">
-                  <User className="w-5 h-5 text-white" />
+                <button className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-[#85C872] to-[#6AB854] rounded-full flex items-center justify-center">
+                  <User className="w-4 h-4 md:w-5 md:h-5 text-white" />
                 </button>
               </div>
             </div>
@@ -120,11 +120,11 @@ export function HealthInsights() {
         </div>
 
         {/* Content */}
-        <div className="p-8">
+        <div className="p-4 md:p-8">
           {/* Comparison Cards */}
           <div className="mb-6">
-            <h2 className="text-2xl mb-4">This Week vs Last Week</h2>
-            <div className="grid grid-cols-4 gap-4">
+            <h2 className="text-xl md:text-2xl mb-4">This Week vs Last Week</h2>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
               {comparisonData.map((item, index) => (
                 <div key={index} className="bg-white rounded-2xl border border-gray-200 p-6">
                   <div className="text-sm text-gray-600 mb-3">{item.metric}</div>
@@ -150,39 +150,83 @@ export function HealthInsights() {
           </div>
 
           {/* Charts */}
-          <div className="grid grid-cols-2 gap-6 mb-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-6">
             {/* Weight Progress Chart */}
-            <div className="bg-white rounded-2xl border border-gray-200 p-6">
-              <h2 className="text-xl mb-6">Weight Progress</h2>
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={weightData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-                  <XAxis dataKey="date" stroke="#9CA3AF" />
-                  <YAxis domain={[70, 76]} stroke="#9CA3AF" />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: 'white',
-                      border: '1px solid #E5E7EB',
-                      borderRadius: '12px',
-                      padding: '8px 12px',
-                    }}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="weight"
-                    stroke="#85C872"
-                    strokeWidth={3}
-                    dot={{ fill: '#85C872', r: 5 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
+            <div className="bg-white rounded-2xl border border-gray-200 p-4 md:p-6">
+              <h2 className="text-lg md:text-xl mb-4 md:mb-6">Weight Progress</h2>
+              <div style={{ width: '100%', height: '300px', minHeight: '300px' }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={weightData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                    <XAxis dataKey="date" stroke="#9CA3AF" />
+                    <YAxis domain={[70, 76]} stroke="#9CA3AF" />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: 'white',
+                        border: '1px solid #E5E7EB',
+                        borderRadius: '12px',
+                        padding: '8px 12px',
+                      }}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="weight"
+                      stroke="#85C872"
+                      strokeWidth={3}
+                      dot={{ fill: '#85C872', r: 5 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
             </div>
 
             {/* Calorie Tracking Chart */}
-            <div className="bg-white rounded-2xl border border-gray-200 p-6">
-              <h2 className="text-xl mb-6">Calorie Tracking</h2>
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={calorieData}>
+            <div className="bg-white rounded-2xl border border-gray-200 p-4 md:p-6">
+              <h2 className="text-lg md:text-xl mb-4 md:mb-6">Calorie Tracking</h2>
+              <div style={{ width: '100%', height: '300px', minHeight: '300px' }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={calorieData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                    <XAxis dataKey="date" stroke="#9CA3AF" />
+                    <YAxis stroke="#9CA3AF" />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: 'white',
+                        border: '1px solid #E5E7EB',
+                        borderRadius: '12px',
+                        padding: '8px 12px',
+                      }}
+                    />
+                    <Legend />
+                    <Line
+                      type="monotone"
+                      dataKey="calories"
+                      stroke="#85C872"
+                      strokeWidth={3}
+                      dot={{ fill: '#85C872', r: 5 }}
+                      name="Consumed"
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="target"
+                      stroke="#F9D867"
+                      strokeWidth={2}
+                      strokeDasharray="5 5"
+                      dot={false}
+                      name="Target"
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
+
+          {/* Macro Distribution Chart */}
+          <div className="bg-white rounded-2xl border border-gray-200 p-4 md:p-6 mb-6">
+            <h2 className="text-lg md:text-xl mb-4 md:mb-6">Macro Distribution</h2>
+            <div style={{ width: '100%', height: '300px', minHeight: '300px' }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={macroData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
                   <XAxis dataKey="date" stroke="#9CA3AF" />
                   <YAxis stroke="#9CA3AF" />
@@ -197,78 +241,40 @@ export function HealthInsights() {
                   <Legend />
                   <Line
                     type="monotone"
-                    dataKey="calories"
+                    dataKey="protein"
                     stroke="#85C872"
-                    strokeWidth={3}
-                    dot={{ fill: '#85C872', r: 5 }}
-                    name="Consumed"
+                    strokeWidth={2}
+                    dot={{ fill: '#85C872', r: 4 }}
+                    name="Protein (g)"
                   />
                   <Line
                     type="monotone"
-                    dataKey="target"
+                    dataKey="carbs"
                     stroke="#F9D867"
                     strokeWidth={2}
-                    strokeDasharray="5 5"
-                    dot={false}
-                    name="Target"
+                    dot={{ fill: '#F9D867', r: 4 }}
+                    name="Carbs (g)"
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="fats"
+                    stroke="#A5B4FC"
+                    strokeWidth={2}
+                    dot={{ fill: '#A5B4FC', r: 4 }}
+                    name="Fats (g)"
                   />
                 </LineChart>
               </ResponsiveContainer>
             </div>
           </div>
 
-          {/* Macro Distribution Chart */}
-          <div className="bg-white rounded-2xl border border-gray-200 p-6 mb-6">
-            <h2 className="text-xl mb-6">Macro Distribution</h2>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={macroData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-                <XAxis dataKey="date" stroke="#9CA3AF" />
-                <YAxis stroke="#9CA3AF" />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: 'white',
-                    border: '1px solid #E5E7EB',
-                    borderRadius: '12px',
-                    padding: '8px 12px',
-                  }}
-                />
-                <Legend />
-                <Line
-                  type="monotone"
-                  dataKey="protein"
-                  stroke="#85C872"
-                  strokeWidth={2}
-                  dot={{ fill: '#85C872', r: 4 }}
-                  name="Protein (g)"
-                />
-                <Line
-                  type="monotone"
-                  dataKey="carbs"
-                  stroke="#F9D867"
-                  strokeWidth={2}
-                  dot={{ fill: '#F9D867', r: 4 }}
-                  name="Carbs (g)"
-                />
-                <Line
-                  type="monotone"
-                  dataKey="fats"
-                  stroke="#A5B4FC"
-                  strokeWidth={2}
-                  dot={{ fill: '#A5B4FC', r: 4 }}
-                  name="Fats (g)"
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-
           {/* AI Insights Section */}
           <div className="mb-6">
             <div className="flex items-center gap-2 mb-4">
-              <Sparkles className="w-6 h-6 text-[#85C872]" />
-              <h2 className="text-2xl">AI Insights & Recommendations</h2>
+              <Sparkles className="w-5 h-5 md:w-6 md:h-6 text-[#85C872]" />
+              <h2 className="text-xl md:text-2xl">AI Insights & Recommendations</h2>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {aiInsights.map((insight) => {
                 const Icon = insight.icon;
                 return (
@@ -295,14 +301,14 @@ export function HealthInsights() {
           </div>
 
           {/* Motivational Section */}
-          <div className="bg-gradient-to-br from-[#85C872] to-[#6AB854] rounded-2xl p-8 text-white">
-            <div className="flex items-center justify-between">
+          <div className="bg-gradient-to-br from-[#85C872] to-[#6AB854] rounded-2xl p-6 md:p-8 text-white">
+            <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
               <div className="flex-1">
-                <h2 className="text-2xl mb-3">You&apos;re Doing Amazing! 🎉</h2>
-                <p className="text-lg opacity-90 mb-4">
+                <h2 className="text-xl md:text-2xl mb-3">You&apos;re Doing Amazing! 🎉</h2>
+                <p className="text-base md:text-lg opacity-90 mb-4">
                   You&apos;ve been consistently meeting your goals for 12 days straight. Your dedication is paying off with visible results.
                 </p>
-                <div className="flex items-center gap-6">
+                <div className="flex flex-wrap items-center gap-4 md:gap-6">
                   <div>
                     <div className="text-3xl">-3.2 kg</div>
                     <div className="text-sm opacity-75">Weight Lost</div>
@@ -317,8 +323,8 @@ export function HealthInsights() {
                   </div>
                 </div>
               </div>
-              <div className="w-48 h-48 bg-white/10 rounded-2xl flex items-center justify-center">
-                <Award className="w-24 h-24" />
+              <div className="w-32 h-32 md:w-48 md:h-48 bg-white/10 rounded-2xl flex items-center justify-center">
+                <Award className="w-16 h-16 md:w-24 md:h-24" />
               </div>
             </div>
           </div>

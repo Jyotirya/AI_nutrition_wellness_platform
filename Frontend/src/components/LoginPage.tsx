@@ -1,70 +1,17 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Apple, Mail, Lock, Eye, EyeOff } from 'lucide-react';
-import { login, getUserDetails } from '@/libapis/api';
-import { useOnboarding } from './onboarding/OnboardingContext';
 
 export function LoginPage() {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const { updateData } = useOnboarding();
-  
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-  });
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
-    
-    try {
-      setLoading(true);
-      
-      // Call login API
-      const { data: tokens } = await login({
-        email: formData.email,
-        password: formData.password,
-      });
-      
-      // Store tokens
-      localStorage.setItem('access', tokens.access);
-      localStorage.setItem('refresh', tokens.refresh);
-
-      const { data: details } = await getUserDetails();
-      const step = details.onboarding_step ?? 0;
-      // 4. Navigate based on onboarding progress
-      if (step > 8) {
-        // Onboarding complete
-
-        navigate('/dashboard');
-      } else if (step === 0) {
-        // Not started
-        navigate('/onboarding/step1');
-      } else {
-        // Resume from current step
-        navigate(`/onboarding/step${step}`);
-      }
-    } catch (err: any) {
-      if (err.response?.status === 401) {
-        setError('Invalid email or password');
-      } else {
-        setError('Login failed. Please try again.');
-      }
-      console.log('Error response:', err.response?.data);  // ← See what went wrong
-      console.log('Error status:', err.response?.status);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    // In a real app, this would authenticate the user
+    navigate('/dashboard');
   };
 
   return (
@@ -85,14 +32,8 @@ export function LoginPage() {
           <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
             <div className="text-center mb-8">
               <h1 className="text-3xl mb-2">Welcome Back</h1>
-              <p className="text-gray-600">Sign in to continue your journey</p>
+              <p className="text-gray-600">Sign in to continue your health journey</p>
             </div>
-
-            {error && (
-              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
-                {error}
-              </div>
-            )}
 
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
@@ -104,9 +45,8 @@ export function LoginPage() {
                   <input
                     type="email"
                     id="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-lime-500 focus:border-transparent outline-none transition"
                     placeholder="your@email.com"
                     required
@@ -123,9 +63,8 @@ export function LoginPage() {
                   <input
                     type={showPassword ? 'text' : 'password'}
                     id="password"
-                    name="password"
-                    value={formData.password}
-                    onChange={handleChange}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     className="w-full pl-11 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-lime-500 focus:border-transparent outline-none transition"
                     placeholder="Enter your password"
                     required
@@ -140,31 +79,25 @@ export function LoginPage() {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between">
-                <label className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    className="w-4 h-4 rounded border-gray-300 text-lime-500 focus:ring-lime-500"
-                  />
-                  <span className="text-sm text-gray-600">Remember me</span>
+              <div className="flex items-center justify-between text-sm">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" className="w-4 h-4 rounded border-gray-300 text-lime-500 focus:ring-lime-500" />
+                  <span className="text-gray-600">Remember me</span>
                 </label>
-                <Link to="/forgot-password" className="text-sm text-lime-600 hover:text-lime-700">
-                  Forgot password?
-                </Link>
+                <a href="#" className="text-lime-600 hover:text-lime-700">Forgot password?</a>
               </div>
 
               <button
                 type="submit"
-                disabled={loading}
-                className="w-full py-3 bg-lime-500 text-white rounded-lg hover:bg-lime-600 transition shadow-lg shadow-lime-500/30 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full py-3 bg-lime-500 text-white rounded-lg hover:bg-lime-600 transition shadow-lg shadow-lime-500/30"
               >
-                {loading ? 'Signing in...' : 'Sign In'}
+                Sign In
               </button>
             </form>
 
             <div className="mt-6 text-center">
               <p className="text-gray-600">
-                Don't have an account?{' '}
+                Don&apos;t have an account?{' '}
                 <Link to="/signup" className="text-lime-600 hover:text-lime-700">
                   Sign up
                 </Link>

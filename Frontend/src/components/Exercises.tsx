@@ -73,29 +73,29 @@ export function Exercises() {
       <Sidebar activePage="Exercises" />
 
       {/* Main Content */}
-      <main className="flex-1 ml-64">
+      <main className="flex-1 lg:ml-64">
         {/* Top Navigation Bar */}
         <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
-          <div className="px-8 py-6">
+          <div className="px-4 md:px-8 py-4 md:py-6">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-3xl mb-1">Exercises</h1>
-                <p className="text-gray-600">Track your workouts and fitness progress</p>
+                <h1 className="text-2xl md:text-3xl mb-1">Exercises</h1>
+                <p className="text-sm md:text-base text-gray-600">Track your workouts and stay active</p>
               </div>
-              <div className="flex items-center gap-4">
-                <div className="relative">
+              <div className="flex items-center gap-2 md:gap-4">
+                <div className="relative hidden md:block">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <input
                     type="text"
-                    placeholder="Search workouts..."
+                    placeholder="Search exercises..."
                     className="pl-10 pr-4 py-2 border border-gray-300 rounded-xl w-64 focus:ring-2 focus:ring-[#85C872] focus:border-transparent outline-none"
                   />
                 </div>
                 <button className="relative p-2 hover:bg-gray-100 rounded-xl transition">
-                  <Bell className="w-6 h-6 text-gray-600" />
+                  <Bell className="w-5 h-5 md:w-6 md:h-6 text-gray-600" />
                 </button>
-                <button className="w-10 h-10 bg-gradient-to-br from-[#85C872] to-[#6AB854] rounded-full flex items-center justify-center">
-                  <User className="w-5 h-5 text-white" />
+                <button className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-[#85C872] to-[#6AB854] rounded-full flex items-center justify-center">
+                  <User className="w-4 h-4 md:w-5 md:h-5 text-white" />
                 </button>
               </div>
             </div>
@@ -103,11 +103,11 @@ export function Exercises() {
         </div>
 
         {/* Content */}
-        <div className="p-8">
-          {/* Activity Summary Cards */}
-          <div className="grid grid-cols-4 gap-4 mb-6">
+        <div className="p-4 md:p-8">
+          {/* Quick Stats */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-6">
             {activitySummary.map((item, index) => (
-              <div key={index} className="bg-white rounded-2xl border border-gray-200 p-6">
+              <div key={index} className="bg-white rounded-2xl border border-gray-200 p-4 md:p-6">
                 <div className="text-sm text-gray-600 mb-2">{item.label}</div>
                 <div className="text-3xl mb-2" style={{ color: item.color }}>
                   {item.value}
@@ -120,71 +120,71 @@ export function Exercises() {
             ))}
           </div>
 
-          <div className="grid grid-cols-3 gap-6 mb-6">
-            {/* Weekly Bar Chart */}
-            <div className="col-span-2 bg-white rounded-2xl border border-gray-200 p-6">
-              <h2 className="text-xl mb-6">Weekly Activity</h2>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={weeklyData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-                  <XAxis dataKey="day" stroke="#9CA3AF" />
-                  <YAxis stroke="#9CA3AF" />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: 'white',
-                      border: '1px solid #E5E7EB',
-                      borderRadius: '12px',
-                      padding: '8px 12px',
-                    }}
-                  />
-                  <Bar dataKey="calories" fill="#85C872" radius={[8, 8, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+          {/* Activity Cards and Chart */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 mb-6">
+            {/* Activity Type Cards */}
+            <div className="lg:col-span-1 space-y-4">
+              <div className="p-4 bg-gradient-to-br from-[#85C872]/10 to-white rounded-xl border border-[#85C872]/30">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-[#85C872] rounded-lg flex items-center justify-center">
+                      <Watch className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <div className="text-sm">Apple Watch</div>
+                      <div className="text-xs text-gray-500">Connected</div>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 text-xs text-gray-600">
+                  <Activity className="w-3 h-3" />
+                  <span>Synced 5 min ago</span>
+                </div>
+              </div>
+
+              <div className="p-4 bg-gradient-to-br from-blue-50 to-white rounded-xl border border-blue-100">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
+                      <Smartphone className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <div className="text-sm">iPhone Health</div>
+                      <div className="text-xs text-gray-500">Connected</div>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 text-xs text-gray-600">
+                  <Activity className="w-3 h-3" />
+                  <span>Synced 12 min ago</span>
+                </div>
+              </div>
+
+              <button className="w-full py-3 border-2 border-dashed border-gray-300 rounded-xl text-sm text-gray-600 hover:border-[#85C872] hover:text-[#85C872] transition">
+                + Connect New Device
+              </button>
             </div>
 
-            {/* Fitness Device Integration */}
-            <div className="bg-white rounded-2xl border border-gray-200 p-6">
-              <h2 className="text-xl mb-6">Connected Devices</h2>
-              <div className="space-y-4">
-                <div className="p-4 bg-gradient-to-br from-[#85C872]/10 to-white rounded-xl border border-[#85C872]/30">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-[#85C872] rounded-lg flex items-center justify-center">
-                        <Watch className="w-5 h-5 text-white" />
-                      </div>
-                      <div>
-                        <div className="text-sm">Apple Watch</div>
-                        <div className="text-xs text-gray-500">Connected</div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2 text-xs text-gray-600">
-                    <Activity className="w-3 h-3" />
-                    <span>Synced 5 min ago</span>
-                  </div>
-                </div>
-
-                <div className="p-4 bg-gradient-to-br from-blue-50 to-white rounded-xl border border-blue-100">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
-                        <Smartphone className="w-5 h-5 text-white" />
-                      </div>
-                      <div>
-                        <div className="text-sm">iPhone Health</div>
-                        <div className="text-xs text-gray-500">Connected</div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2 text-xs text-gray-600">
-                    <Activity className="w-3 h-3" />
-                    <span>Synced 12 min ago</span>
-                  </div>
-                </div>
-
-                <button className="w-full py-3 border-2 border-dashed border-gray-300 rounded-xl text-sm text-gray-600 hover:border-[#85C872] hover:text-[#85C872] transition">
-                  + Connect New Device
-                </button>
+            {/* Weekly Bar Chart */}
+            <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-200 p-4 md:p-6">
+              <h2 className="text-lg md:text-xl mb-4 md:mb-6">Weekly Activity</h2>
+              <div style={{ width: '100%', height: '300px', minHeight: '300px' }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={weeklyData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                    <XAxis dataKey="day" stroke="#9CA3AF" />
+                    <YAxis stroke="#9CA3AF" />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: 'white',
+                        border: '1px solid #E5E7EB',
+                        borderRadius: '12px',
+                        padding: '8px 12px',
+                      }}
+                    />
+                    <Bar dataKey="calories" fill="#85C872" radius={[8, 8, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
               </div>
             </div>
           </div>

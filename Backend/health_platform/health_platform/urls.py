@@ -1,6 +1,6 @@
 # health_platform/urls.py
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from rest_framework_simplejwt.views import TokenRefreshView
 from api.views import RegisterView, LoginView, ProfileView, UserDetailsView, LogoutView
 
@@ -13,4 +13,5 @@ urlpatterns = [
     path("api/auth/details/", UserDetailsView.as_view()),
     path("api/auth/logout/", LogoutView.as_view()),
     path("api/auth/token/refresh/", TokenRefreshView.as_view(),name="token_refresh"),
+    path("api/meal-planner/", include("meal_planner.urls")),
 ]

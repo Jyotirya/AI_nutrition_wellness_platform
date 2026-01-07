@@ -125,4 +125,14 @@ export const getUserDetails = () =>
 export const logout = (refreshToken: string) =>
   api.post("/api/auth/logout/", { refresh: refreshToken });
 
+// Meal planner
+export const generateWeeklyPlan = (regenerate = false) =>
+  api.post("/api/meal-planner/generate/", { regenerate });
+
+export const getWeeklyPlans = () =>
+  api.get("/api/meal-planner/weekly-plans/");
+
+export const regenerateDailyPlan = (day?: number) =>
+  api.post("/api/meal-planner/regenerate-day/", { day });
+
 export default api;

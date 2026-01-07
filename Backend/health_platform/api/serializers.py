@@ -1,13 +1,16 @@
 from django.contrib.auth import get_user_model
-from rest_framework import serializers
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework import serializers#type: ignore
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer#type: ignore
+from rest_framework_simplejwt.tokens import RefreshToken#type: ignore
 from .models import UserDetails
-from rest_framework.validators import UniqueValidator
+from rest_framework.validators import UniqueValidator #type: ignore
 
 User = get_user_model()
 
-class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
-    username_field = "email"  
+class CustomTokenObtainPairSerializer(serializers.Serializer):
+    """Custom login serializer that uses email instead of username"""
+    email = serializers.EmailField()
+    password = serializers.CharField(write_only=True)
 
     def validate(self, attrs):
         email = attrs.get("email")
@@ -23,19 +26,16 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 
         if not user.check_password(password):
             raise serializers.ValidationError({"password": "Invalid credentials"})
+        
+        if not user.is_active:
+            raise serializers.ValidationError({"email": "User account is disabled"})
 
-        refresh = self.get_token(user)
+        refresh = RefreshToken.for_user(user)
 
         return {
             "refresh": str(refresh),
             "access": str(refresh.access_token),
         }
-
-    @classmethod
-    def get_token(cls, user):
-        token = super().get_token(user)
-        token["email"] = user.email
-        return token
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -84,8 +84,11 @@ class UserDetailsSerializer(serializers.ModelSerializer):
             "age",
             "gender",
             "exercise",
+            "workout_frequency",
             "food_preference",
             "allergies",
+            "cuisine",
+            "body_fat",
             "goal",
             "updated_at",
             "onboarding_step",

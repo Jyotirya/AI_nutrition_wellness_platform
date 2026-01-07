@@ -20,7 +20,7 @@ export function WeightProgressRing({ current, goal, weeklyChange }: WeightProgre
   return (
     <div className="flex flex-col items-center">
       <div className="relative w-48 h-48">
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer width={192} height={192}>
           <PieChart>
             <Pie
               data={data}

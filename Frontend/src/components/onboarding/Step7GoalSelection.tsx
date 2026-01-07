@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { useOnboarding } from './OnboardingContext';
 import { OnboardingLayout } from './OnboardingLayout';
 import { ArrowRight, ArrowLeft, TrendingDown, TrendingUp, Activity } from 'lucide-react';
-import { useEffect } from 'react';
 
 const goals = [
   {
@@ -31,22 +30,14 @@ const goals = [
 
 export function Step7GoalSelection() {
   const navigate = useNavigate();
-  const { data, updateData, saveProgress} = useOnboarding();
+  const { data, updateData } = useOnboarding();
   const [selected, setSelected] = useState(data.goal);
 
-  const handleSubmit = async (e: React.FormEvent) =>{
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    saveProgress({ goal: selected, onboardingStep: 8 });
+    updateData({ goal: selected });
     navigate('/onboarding/summary');
   };
-
-  useEffect(() => {
-    setSelected(data.goal);
-    if (data.onboardingStep > 8 ) {
-      navigate("/dashboard");
-    }
-  },[data]);
-
 
   return (
     <OnboardingLayout currentStep={7} totalSteps={7}>
@@ -80,7 +71,7 @@ export function Step7GoalSelection() {
                   iconBg: 'bg-purple-500',
                   text: 'text-purple-700',
                 },
-              }[goal.color]!;
+              }[goal.color];
 
               return (
                 <button

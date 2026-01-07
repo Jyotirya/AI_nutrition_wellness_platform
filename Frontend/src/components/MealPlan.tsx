@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { 
   LayoutDashboard, 
   UtensilsCrossed, 
@@ -19,10 +19,11 @@ import {
   MoreVertical
 } from 'lucide-react';
 import { Sidebar } from './shared/Sidebar';
+import { getWeeklyPlans, generateWeeklyPlan } from '@/libapis/api';
 
 const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
-const weeklyMeals = {
+const fallbackWeeklyMeals = {
   Monday: {
     breakfast: { name: 'Oatmeal with Berries', calories: 340, protein: 12, carbs: 58, fats: 8 },
     lunch: { name: 'Grilled Chicken Salad', calories: 450, protein: 38, carbs: 24, fats: 22 },
@@ -68,7 +69,44 @@ const weeklyMeals = {
 };
 
 export function MealPlan() {
-  const [currentWeek, setCurrentWeek] = useState('Week of Dec 9-15, 2024');
+  const [currentWeek, setCurrentWeek] = useState('Your Plan');
+  const [plans, setPlans] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [regenerating, setRegenerating] = useState(false);
+
+  const loadPlans = async () => {
+    try {
+      const { data } = await getWeeklyPlans();
+      setPlans(data);
+    } catch (err) {
+      console.error('Failed to load plans', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadPlans();
+  }, []);
+
+  const handleRegenerate = async () => {
+    setRegenerating(true);
+    try {
+      // Regenerate plan (deletes old ones and creates new)
+      await generateWeeklyPlan(true);
+      // Reload plans
+      await loadPlans();
+    } catch (err) {
+      console.error('Failed to regenerate plan', err);
+    } finally {
+      setRegenerating(false);
+    }
+  };
+
+  const activePlan = plans[0];
+  const weeklyMeals = activePlan
+    ? mapApiPlanToUI(activePlan)
+    : fallbackWeeklyMeals;
 
   const calculateDayMacros = (day: keyof typeof weeklyMeals) => {
     const meals = weeklyMeals[day];
@@ -127,13 +165,20 @@ export function MealPlan() {
                 <ChevronRight className="w-5 h-5" />
               </button>
             </div>
-            <button className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#85C872] to-[#6AB854] text-white rounded-xl hover:shadow-lg transition">
-              <Sparkles className="w-5 h-5" />
-              Regenerate Plan
+            <button 
+              onClick={handleRegenerate}
+              disabled={regenerating}
+              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#85C872] to-[#6AB854] text-white rounded-xl hover:shadow-lg transition disabled:opacity-70"
+            >
+              <Sparkles className={`w-5 h-5 ${regenerating ? 'animate-spin' : ''}`} />
+              {regenerating ? 'Regenerating...' : 'Regenerate Plan'}
             </button>
           </div>
 
           {/* Weekly Grid */}
+          {loading ? (
+            <div className="p-8 text-gray-600">Loading plan...</div>
+          ) : (
           <div className="grid grid-cols-7 gap-4">
             {daysOfWeek.map((day) => {
               const dayMacros = calculateDayMacros(day as keyof typeof weeklyMeals);
@@ -216,8 +261,51 @@ export function MealPlan() {
               );
             })}
           </div>
+          )}
         </div>
       </main>
     </div>
   );
+}
+
+function mapApiPlanToUI(plan: any) {
+  // plan.days -> each day has meals array
+  const result: any = {};
+  for (const day of plan.days || []) {
+    const dayName = daysOfWeek[day.day] || `Day${day.day}`;
+    const meals = day.meals || [];
+    const mapMeal = (type: string) => {
+      const m = meals.find((x: any) => x.meal_type === type);
+      if (!m) {
+        return {
+          name: 'Not planned',
+          calories: 0,
+          protein: 0,
+          carbs: 0,
+          fats: 0,
+        };
+      }
+      // Get all food names from items, join them if multiple
+      const foodNames = (m.items || [])
+        .map((item: any) => item.food?.name)
+        .filter(Boolean);
+      const displayName = foodNames.length > 0 
+        ? (foodNames.length > 1 ? foodNames.slice(0, 2).join(' + ') : foodNames[0])
+        : type;
+      return {
+        name: displayName,
+        calories: m.calories || 0,
+        protein: m.protein_g || 0,
+        carbs: m.carbs_g || 0,
+        fats: m.fats_g || 0,
+      };
+    };
+    result[dayName] = {
+      breakfast: mapMeal('Breakfast'),
+      lunch: mapMeal('Lunch'),
+      snacks: mapMeal('Snack'),
+      dinner: mapMeal('Dinner'),
+    };
+  }
+  return Object.keys(result).length ? result : fallbackWeeklyMeals;
 }

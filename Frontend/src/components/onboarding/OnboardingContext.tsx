@@ -1,144 +1,160 @@
-import { createContext, useContext, useState, ReactNode } from "react";
-import { updateUserDetails, getProfile } from "@/libapis/api";
-import { useEffect } from "react";
+import { createContext, useContext, useState, ReactNode, useMemo, useCallback, useEffect } from 'react';
+import { getProfile } from '@/libapis/api';
 
 interface OnboardingData {
+  // Step 1
   name: string;
   email: string;
+  password: string;
   age: string;
   gender: string;
+  // Step 2
   height: string;
   weight: string;
+  // Step 3
   activityLevel: string;
+  // Step 4
   bodyFat: number;
-  workoutTypes: string[];
-  workoutDaysPerWeek: number;               
-  dietType: string[];
+  // Step 5
+  workoutTypes: string;
+  workoutDaysPerWeek: number;
+  // Step 6
+  dietType: string;
   tastePreferences: string[];
   allergies: string[];
+  cuisinePreferences: string[];
+  // Step 7
   goal: string;
-  onboardingStep: number;
 }
+
+const defaultOnboardingData: OnboardingData = {
+  name: '',
+  email: '',
+  password: '',
+  age: '',
+  gender: '',
+  height: '',
+  weight: '',
+  activityLevel: '',
+  bodyFat: 20,
+  workoutTypes: '',
+  workoutDaysPerWeek: 3,
+  dietType: '',
+  tastePreferences: [],
+  allergies: [],
+  cuisinePreferences: [],
+  goal: '',
+};
 
 interface OnboardingContextType {
   data: OnboardingData;
   updateData: (newData: Partial<OnboardingData>) => void;
-  saveProgress: (stepData: Partial<OnboardingData>) => Promise<void>;
-  loadProfile: () => Promise<void>;
-  isRegistered: boolean;
+  resetData: () => void;
 }
 
 const OnboardingContext = createContext<OnboardingContextType | undefined>(undefined);
 
 export function OnboardingProvider({ children }: { children: ReactNode }) {
-  const [data, setData] = useState<OnboardingData>({
-    name: "",
-    email: "",
-    age: "",
-    gender: "",
-    height: "",
-    weight: "",
-    activityLevel: "",
-    bodyFat: 20,
-    workoutTypes: [],
-    workoutDaysPerWeek: 3,
-    dietType: [],
-    tastePreferences: [],
-    allergies: [],
-    goal: "",
-    onboardingStep: 0,
-  });
-  const [isRegistered, setIsRegistered] = useState(false);
-
-  
-
-
-  const updateData = (newData: Partial<OnboardingData>) => {
-    setData((prev) => ({ ...prev, ...newData }));
-  };
-
-  useEffect(() => {
-    const token = localStorage.getItem("access");
-    if (token) {
-      // Fetch and hydrate context
-      loadProfile();
+  const seed = (() => {
+    try {
+      const raw = localStorage.getItem('onboarding_seed');
+      return raw ? JSON.parse(raw) : {};
+    } catch {
+      return {};
     }
-    // eslint-disable-next-line
+  })();
+
+  const [data, setData] = useState<OnboardingData>({
+    ...defaultOnboardingData,
+    name: seed.name || '',
+    email: seed.email || '',
+    password: seed.password || '',
+  });
+
+  const updateData = useCallback((newData: Partial<OnboardingData>) => {
+    setData((prev) => ({ ...prev, ...newData }));
   }, []);
 
-  // Save progress to backend and update local state
-  const saveProgress = async (stepData: Partial<OnboardingData>): Promise<void> => {
-    const token = localStorage.getItem("access");
-    if (!token) {
-      console.log("No auth token, skipping save");
-      return;
-    }
+  const resetData = useCallback(() => {
+    localStorage.removeItem('onboarding_seed');
+    setData(defaultOnboardingData);
+  }, []);
 
-    // Merge with current data
-    const mergedData = { ...data, ...stepData };
-    
-    // Update local state first
-    updateData(stepData);
-
+  // Persist key signup/onboarding fields locally so a refresh keeps email/name/password
+  useEffect(() => {
     try {
-      await updateUserDetails({
-        age: mergedData.age ? Number(mergedData.age) : null,
-        gender: mergedData.gender || null,
-        height: mergedData.height ? Number(mergedData.height) : null,
-        weight: mergedData.weight ? Number(mergedData.weight) : null,
-        activity_level: mergedData.activityLevel || null,
-        exercise: mergedData.workoutTypes?.join(", ") || null,
-        food_preference: mergedData.dietType?.join(", ") || null,
-        allergies: mergedData.allergies?.join(", ") || null,
-        goal: mergedData.goal || null,
-        onboarding_step: stepData.onboardingStep ?? mergedData.onboardingStep,
-      });
-      console.log("✅ Progress saved:", stepData);
-    } catch (err) {
-      console.error("❌ Error saving progress:", err);
-      throw err; // Re-throw so caller can handle
+      localStorage.setItem(
+        'onboarding_seed',
+        JSON.stringify({
+          name: data.name,
+          email: data.email,
+          password: data.password,
+        })
+      );
+    } catch {
+      /* ignore */
     }
-  };
+  }, [data.name, data.email, data.password]);
 
-  // Load profile from backend
-  const loadProfile = async (): Promise<void> => {
-    try {
-      const { data } = await getProfile();
-      setIsRegistered(true);
+  // Hydrate from backend profile if a token exists (e.g., after login/refresh)
+  useEffect(() => {
+    const token = localStorage.getItem('access');
+    if (!token) return;
 
-      const details = data.details || {};
-      const user = data.user || {};
-      
-      updateData({
-        name: `${user.first_name || ""} ${user.last_name || ""}`.trim(),
-        email: user.email || "",
-        age: details.age?.toString() || "",
-        gender: details.gender || "",
-        height: details.height?.toString() || "",
-        weight: details.weight?.toString() || "",
-        activityLevel: details.activity_level || "",
-        workoutTypes: details.exercise?.split(",").map((s: string) => s.trim()).filter(Boolean) || [],
-        dietType: details.food_preference?.split(",").map((s: string) => s.trim()).filter(Boolean) || [],
-        allergies: details.allergies?.split(",").map((s: string) => s.trim()).filter(Boolean) || [],
-        goal: details.goal || "",
-        onboardingStep: details.onboarding_step || 0,
-      });
-    } catch (err) {
-      console.error("Error loading profile:", err);
-    }
-  };
+    (async () => {
+      try {
+        const { data: profile } = await getProfile();
+        const user = profile.user || {};
+        const details = profile.details || {};
+        const step = details.onboarding_step ?? 0;
+
+        setData((prev) => {
+          // If onboarding not finished yet, avoid overriding user-entered blanks with backend defaults
+          const shouldHydrateAll = step >= 7;
+          return {
+            ...prev,
+            name: `${user.first_name || ''} ${user.last_name || ''}`.trim() || prev.name,
+            email: user.email || prev.email,
+            // Only hydrate detail fields when onboarding finished
+            age: shouldHydrateAll ? (details.age?.toString() || prev.age) : prev.age,
+            gender: shouldHydrateAll ? (details.gender || prev.gender) : prev.gender,
+            height: shouldHydrateAll ? (details.height?.toString() || prev.height) : prev.height,
+            weight: shouldHydrateAll ? (details.weight?.toString() || prev.weight) : prev.weight,
+            activityLevel: shouldHydrateAll ? (details.activity_level || prev.activityLevel) : prev.activityLevel,
+            bodyFat: shouldHydrateAll ? (details.body_fat ?? prev.bodyFat) : prev.bodyFat,
+            workoutTypes: shouldHydrateAll ? (details.exercise || prev.workoutTypes) : prev.workoutTypes,
+            workoutDaysPerWeek: shouldHydrateAll ? (details.workout_frequency ?? prev.workoutDaysPerWeek) : prev.workoutDaysPerWeek,
+            dietType: shouldHydrateAll ? (details.food_preference || prev.dietType) : prev.dietType,
+            tastePreferences: prev.tastePreferences,
+            allergies: shouldHydrateAll && details.allergies
+              ? details.allergies.split(',').map((a: string) => a.trim()).filter(Boolean)
+              : prev.allergies,
+            cuisinePreferences: shouldHydrateAll && details.cuisine
+              ? details.cuisine.split(',').map((c: string) => c.trim()).filter(Boolean)
+              : prev.cuisinePreferences,
+            goal: shouldHydrateAll ? (details.goal || prev.goal) : prev.goal,
+          };
+        });
+      } catch (err) {
+        // Fail silently; user may not be logged in yet
+        console.warn('Could not load profile', err);
+      }
+    })();
+  }, []);
+
+  const value = useMemo(() => ({ data, updateData, resetData }), [data, updateData, resetData]);
 
   return (
-    <OnboardingContext.Provider
-      value={{ data, updateData, saveProgress, loadProfile, isRegistered }}
-    >
+    <OnboardingContext.Provider value={value}>
       {children}
     </OnboardingContext.Provider>
   );
 }
 
 export function useOnboarding() {
-  const ctx = useContext(OnboardingContext);
-  if (!ctx) throw new Error("useOnboarding must be used within OnboardingProvider");
-  return ctx;
+  const context = useContext(OnboardingContext);
+  if (!context) {
+    throw new Error('useOnboarding must be used within OnboardingProvider');
+  }
+  return context;
 }

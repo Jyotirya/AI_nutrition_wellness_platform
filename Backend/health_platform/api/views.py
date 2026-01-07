@@ -1,13 +1,12 @@
 from django.contrib.auth import get_user_model
-from rest_framework import status
-from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework.response import Response
-from rest_framework.views import APIView
-from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework import status#type: ignore
+from rest_framework.permissions import AllowAny, IsAuthenticated#type: ignore
+from rest_framework.response import Response#type: ignore
+from rest_framework.views import APIView#type: ignore
+from rest_framework_simplejwt.tokens import RefreshToken#type: ignore
 
 from .models import UserDetails
-from .serializers import (
+from .serializers import ( 
     RegisterSerializer,
     UserSerializer,
     UserDetailsSerializer,
@@ -31,9 +30,14 @@ class RegisterView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class LoginView(TokenObtainPairView):
+class LoginView(APIView):
     permission_classes = [AllowAny]
-    serializer_class = CustomTokenObtainPairSerializer
+
+    def post(self, request):
+        serializer = CustomTokenObtainPairSerializer(data=request.data)
+        if serializer.is_valid():
+            return Response(serializer.validated_data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ProfileView(APIView):

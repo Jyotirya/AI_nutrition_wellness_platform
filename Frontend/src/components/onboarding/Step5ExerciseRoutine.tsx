@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { useOnboarding } from './OnboardingContext';
 import { OnboardingLayout } from './OnboardingLayout';
 import { ArrowRight, ArrowLeft, Dumbbell, Bike, PersonStanding, Waves, Mountain, Box } from 'lucide-react';
-import { useEffect } from 'react';
 
 const workoutTypes = [
   { value: 'Strength Training', label: 'Strength Training', icon: Dumbbell },
@@ -16,29 +15,17 @@ const workoutTypes = [
 
 export function Step5ExerciseRoutine() {
   const navigate = useNavigate();
-  const { data, updateData, saveProgress } = useOnboarding();
-  const [selectedTypes, setSelectedTypes] = useState<string[]>(data.workoutTypes);
+  const { data, updateData } = useOnboarding();
+  const [selectedType, setSelectedType] = useState<string>(data.workoutTypes);
   const [daysPerWeek, setDaysPerWeek] = useState(data.workoutDaysPerWeek);
 
-  const toggleWorkoutType = (type: string) => {
-    if (selectedTypes.includes(type)) {
-      setSelectedTypes(selectedTypes.filter((t) => t !== type));
-    } else {
-      setSelectedTypes([...selectedTypes, type]);
-    }
+  const selectWorkoutType = (type: string) => {
+    setSelectedType(type);
   };
 
-  useEffect(() => {
-    setSelectedTypes(data.workoutTypes);
-    setDaysPerWeek(data.workoutDaysPerWeek);
-    if (data.onboardingStep > 8 ) {
-      navigate("/dashboard");
-    }
-  },[data]);
-
-  const handleSubmit = async(e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    await saveProgress({ workoutTypes: selectedTypes, workoutDaysPerWeek: daysPerWeek , onboardingStep: 6 });
+    updateData({ workoutTypes: selectedType, workoutDaysPerWeek: daysPerWeek });
     navigate('/onboarding/step6');
   };
 
@@ -47,21 +34,21 @@ export function Step5ExerciseRoutine() {
       <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
         <div className="mb-8">
           <h1 className="text-3xl mb-2">Your Exercise Routine</h1>
-          <p className="text-gray-600">Select the types of workouts you enjoy and how often you exercise</p>
+          <p className="text-gray-600">Select your preferred workout type and how often you exercise</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-8">
           <div>
-            <h3 className="mb-4">Workout Types</h3>
+            <h3 className="mb-4">Workout Type</h3>
             <div className="grid md:grid-cols-3 gap-3">
               {workoutTypes.map((workout) => {
                 const Icon = workout.icon;
-                const isSelected = selectedTypes.includes(workout.value);
+                const isSelected = selectedType === workout.value;
                 return (
                   <button
                     key={workout.value}
                     type="button"
-                    onClick={() => toggleWorkoutType(workout.value)}
+                    onClick={() => selectWorkoutType(workout.value)}
                     className={`p-4 rounded-xl border-2 transition ${
                       isSelected
                         ? 'border-lime-500 bg-lime-50'
@@ -120,7 +107,7 @@ export function Step5ExerciseRoutine() {
             </button>
             <button
               type="submit"
-              disabled={selectedTypes.length === 0}
+              disabled={selectedType.length === 0}
               className="flex-1 py-3 bg-lime-500 text-white rounded-lg hover:bg-lime-600 transition shadow-lg shadow-lime-500/30 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               Next

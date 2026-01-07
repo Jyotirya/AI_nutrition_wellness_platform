@@ -47,7 +47,7 @@ export function CalorieIntakeRing({ consumed, target, protein, carbs, fats }: Ca
     <div>
       <div className="flex items-center justify-center mb-6">
         <div className="relative w-48 h-48">
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width={192} height={192}>
             <PieChart>
               <Pie
                 data={data}

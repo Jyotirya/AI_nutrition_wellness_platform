@@ -1,32 +1,20 @@
-import { use, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useOnboarding } from './OnboardingContext';
 import { OnboardingLayout } from './OnboardingLayout';
 import { ArrowRight, ArrowLeft, Ruler, Weight } from 'lucide-react';
-import { useEffect } from 'react';
 
 export function Step2HeightWeight() {
   const navigate = useNavigate();
-  const { data, saveProgress } = useOnboarding();
+  const { data, updateData } = useOnboarding();
   const [formData, setFormData] = useState({
     height: data.height,
     weight: data.weight,
-    onboardingStep: 3,
   });
-  useEffect(() => {
-    setFormData({
-      height: data.height,
-      weight: data.weight,
-      onboardingStep: 3,
-    });
-    if (data.onboardingStep > 8 ) {
-      navigate("/dashboard");
-    }
-  },[data]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    await saveProgress(formData);
+    updateData(formData);
     navigate('/onboarding/step3');
   };
 

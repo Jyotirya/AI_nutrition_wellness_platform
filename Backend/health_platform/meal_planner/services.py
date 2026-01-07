@@ -53,7 +53,7 @@ class MealPlanService:
     MEAL_SPLITS = {
         1: ([1.0], ["Dinner"]),
         2: ([0.45, 0.55], ["Lunch", "Dinner"]),
-        3: ([0.30, 0.40, 0.30], ["Breakfast", "Lunch", "Dinner"]),
+        3: ([0.25, 0.35, 0.40], ["Breakfast", "Lunch", "Dinner"]),
         4: ([0.25, 0.35, 0.15, 0.25], ["Breakfast", "Lunch", "Snack", "Dinner"]),
         5: ([0.20, 0.30, 0.15, 0.15, 0.20],
             ["Breakfast", "Lunch", "Snack", "Snack", "Dinner"]),
@@ -84,10 +84,11 @@ class MealPlanService:
 
             for meal in daily_plan["meals"]:
                 for food in meal["foods"]:
-                    repetition_tracker[food.id] += 1
+                    # Strong increment to prevent same food appearing on consecutive days
+                    repetition_tracker[food.id] += 3
 
-            # decay repetition memory
-            for key in repetition_tracker:
+            # Slower decay of repetition memory to maintain variety across the week
+            for key in list(repetition_tracker.keys()):
                 repetition_tracker[key] = max(0, repetition_tracker[key] - 1)
 
             weekly_plan.append(daily_plan)
@@ -103,10 +104,10 @@ class MealPlanService:
             meals_per_day, self.MEAL_SPLITS[3]
         )
 
-        # Handle snacking override
+        # Handle snacking override - always include breakfast
         if meals_per_day == 3 and user.snacking:
-            meal_dist = [0.40, 0.25, 0.35]
-            meal_types = ["Lunch", "Snack", "Dinner"]
+            meal_dist = [0.20, 0.30, 0.15, 0.35]
+            meal_types = ["Breakfast", "Lunch", "Snack", "Dinner"]
 
         foods_qs = self._base_food_queryset(user)
 
@@ -217,36 +218,72 @@ class MealPlanService:
             user_allergies = [
                 a.strip().lower()
                 for a in u.allergies.split(",")
-                if a.strip().lower() != "no-allergies"
+                if a.strip().lower() not in ("no-allergies", "no allergies")
             ]
 
             if user_allergies:
-                qs = qs.exclude(allergy__overlap=user_allergies)
+                # For SQLite JSON: exclude foods containing any of the user's allergies
+                for allergy in user_allergies:
+                    qs = qs.exclude(allergy__icontains=allergy)
 
         if u.cuisine:
-            user_cuisines = [c.strip() for c in u.cuisine.split(",")]
-            qs = qs.filter(region__overlap=user_cuisines)
+            # Map frontend cuisine values to database region values
+            cuisine_map = {
+                "north indian": "North",
+                "south indian": "South", 
+                "east indian": "East",
+                "west indian": "West",
+                "continental": "Continental",
+            }
+            user_cuisines = []
+            for c in u.cuisine.split(","):
+                c_lower = c.strip().lower()
+                mapped = cuisine_map.get(c_lower, c.strip())
+                user_cuisines.append(mapped)
+            if user_cuisines:
+                # For SQLite JSON: filter foods matching any of user's cuisine preferences
+                from django.db.models import Q
+                cuisine_q = Q()
+                for cuisine in user_cuisines:
+                    cuisine_q |= Q(region__icontains=cuisine)
+                qs = qs.filter(cuisine_q)
 
         if u.food_preference:
-            qs = qs.filter(category__overlap=[u.food_preference])
+            # Map frontend values to database values
+            preference_map = {
+                "vegetarian": "Veg",
+                "non-vegetarian": "Non-veg",
+                "eggetarian": "Veg",  # Eggetarian is essentially veg with eggs
+            }
+            db_preference = preference_map.get(u.food_preference.lower(), u.food_preference)
+            # For SQLite JSON: use icontains instead of overlap
+            qs = qs.filter(category__icontains=db_preference)
 
         return qs
 
 
     def _build_meal(self, foods_qs, meal_type, target_calories, goal, repetition_tracker):
         allowed_types = self.MEAL_TYPE_MAPPING.get(meal_type, [meal_type])
-        pool = foods_qs.filter(type__overlap=allowed_types)
+        # For SQLite JSON: use icontains instead of overlap
+        from django.db.models import Q
+        type_q = Q()
+        for t in allowed_types:
+            type_q |= Q(type__icontains=t)
+        pool = foods_qs.filter(type_q)
 
         pool = list(pool)
         random.shuffle(pool)
 
         def score(food):
-            penalty = repetition_tracker.get(food.id, 0) * 2
+            # Strong penalty for recently used foods to ensure variety across days
+            penalty = repetition_tracker.get(food.id, 0) * 50
+            # Add randomness to scoring to increase variety
+            randomness = random.uniform(0, 20)
             if goal == "weight_loss":
-                return (food.proteins_g or 0) * 2 + (food.fiber_g or 0) - penalty
+                return (food.proteins_g or 0) * 2 + (food.fiber_g or 0) - penalty + randomness
             if goal == "muscle_gain":
-                return (food.proteins_g or 0) * 2 - (food.fats_g or 0) - penalty
-            return (food.proteins_g or 0) + (food.fiber_g or 0) - penalty
+                return (food.proteins_g or 0) * 2 - (food.fats_g or 0) - penalty + randomness
+            return (food.proteins_g or 0) + (food.fiber_g or 0) - penalty + randomness
 
         pool.sort(key=score, reverse=True)
 

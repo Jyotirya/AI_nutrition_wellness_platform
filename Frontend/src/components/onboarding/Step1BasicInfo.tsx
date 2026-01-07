@@ -3,35 +3,21 @@ import { useNavigate } from 'react-router-dom';
 import { useOnboarding } from './OnboardingContext';
 import { OnboardingLayout } from './OnboardingLayout';
 import { ArrowRight } from 'lucide-react';
-import { useEffect } from 'react';
-
 
 export function Step1BasicInfo() {
   const navigate = useNavigate();
-  const { data,saveProgress } = useOnboarding();
+  const { data, updateData } = useOnboarding();
   const [formData, setFormData] = useState({
-    age: data.age ?? "",
+    name: data.name,
+    age: data.age,
     gender: data.gender,
-    onboardingstep : 2,
   });
 
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    await saveProgress(formData);
-    navigate("/onboarding/step2");
+    updateData(formData);
+    navigate('/onboarding/step2');
   };
-
-  useEffect(() => {
-    setFormData({
-      age: data.age ?? "",
-      gender: data.gender,
-      onboardingstep : 2,
-    });
-    if (data.onboardingStep > 8 ) {
-      navigate("/dashboard");
-    }
-  },[data]);
 
   return (
     <OnboardingLayout currentStep={1} totalSteps={7}>
@@ -42,6 +28,21 @@ export function Step1BasicInfo() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <label htmlFor="name" className="block text-sm mb-2 text-gray-700">
+              Full Name
+            </label>
+            <input
+              type="text"
+              id="name"
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-lime-500 focus:border-transparent outline-none transition"
+              placeholder="Enter your name"
+              required
+            />
+          </div>
+
           <div>
             <label htmlFor="age" className="block text-sm mb-2 text-gray-700">
               Age
@@ -83,7 +84,7 @@ export function Step1BasicInfo() {
 
           <button
             type="submit"
-            disabled={!formData.age || !formData.gender}
+            disabled={!formData.name || !formData.age || !formData.gender}
             className="w-full py-3 bg-lime-500 text-white rounded-lg hover:bg-lime-600 transition shadow-lg shadow-lime-500/30 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             Next
@@ -94,4 +95,3 @@ export function Step1BasicInfo() {
     </OnboardingLayout>
   );
 }
-
