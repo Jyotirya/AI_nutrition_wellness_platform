@@ -80,18 +80,18 @@ export function Step7GoalSelection() {
                   onClick={() => setSelected(goal.value)}
                   className={`w-full p-6 rounded-xl border-2 transition text-left ${
                     isSelected
-                      ? `${colorClasses.border} ${colorClasses.bg}`
+                      ? `${colorClasses!.border} ${colorClasses!.bg}`
                       : 'border-gray-200 hover:border-lime-300'
                   }`}
                 >
                   <div className="flex items-center gap-4">
                     <div className={`w-16 h-16 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                      isSelected ? colorClasses.iconBg : 'bg-gray-100'
+                      isSelected ? colorClasses!.iconBg : 'bg-gray-100'
                     } text-white`}>
                       <Icon className="w-8 h-8" />
                     </div>
                     <div className="flex-1">
-                      <h3 className={`text-xl mb-1 ${isSelected ? colorClasses.text : ''}`}>
+                      <h3 className={`text-xl mb-1 ${isSelected ? colorClasses!.text : ''}`}>
                         {goal.label}
                       </h3>
                       <p className="text-gray-600">{goal.description}</p>
